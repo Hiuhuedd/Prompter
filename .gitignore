@@ -1,0 +1,51 @@
+# Node.js (if you use npm/yarn for dependencies)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build output (if you add a build step later)
+dist/
+build/
+
+# Local environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# Firebase local files
+.firebase/
+.firebaserc
+firebase.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Dependency caches
+.cache/
+
+# Coverage reports (if you add testing)
+coverage/
+
+# Images directory (optional, if you don't want to track images)
+# Uncomment the line below if you want to exclude images
+# images/

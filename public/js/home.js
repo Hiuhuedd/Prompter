@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
         promptSearch: document.getElementById('promptSearch'),
         commonPrompts: document.getElementById('commonPrompts'),
         loginBtn: document.getElementById('loginBtn'),
-        signupBtn: document.getElementById('signupBtn'),
         logoutBtn: document.getElementById('logoutBtn'),
         authSection: document.getElementById('authSection'),
         userInfo: document.getElementById('userInfo'),
@@ -45,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         promptsUsed: document.getElementById('promptsUsed')
     };
 
-    const FREE_PLAN_LIMIT = 5; // Daily limit for free plan
+    const FREE_PLAN_LIMIT = 5;
     let currentUser = null;
 
     const modal = {
@@ -87,49 +86,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Authentication handling
-    elements.loginBtn.addEventListener('click', () => {
-        const email = prompt('Enter your email:');
-        const password = prompt('Enter your password:');
-        auth.signInWithEmailAndPassword(email, password)
-            .catch(err => showNotification('Login failed: ' + err.message));
-    });
-
-    elements.signupBtn.addEventListener('click', () => {
-        const email = prompt('Enter your email:');
-        const password = prompt('Enter your password:');
-        auth.createUserWithEmailAndPassword(email, password)
-            .then(userCredential => {
-                const user = userCredential.user;
-                db.collection('users').doc(user.uid).set({
-                    plan: 'free',
-                    promptsUsedToday: 0,
-                    lastReset: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            })
-            .catch(err => showNotification('Signup failed: ' + err.message));
-    });
-
-    elements.logoutBtn.addEventListener('click', () => {
-        auth.signOut();
-    });
-
     auth.onAuthStateChanged(user => {
         currentUser = user;
         if (user) {
             elements.loginBtn.classList.add('hidden');
-            elements.signupBtn.classList.add('hidden');
             elements.logoutBtn.classList.remove('hidden');
             elements.userInfo.classList.remove('hidden');
             elements.userEmail.textContent = user.email;
             updateUserPlanInfo(user.uid);
         } else {
             elements.loginBtn.classList.remove('hidden');
-            elements.signupBtn.classList.remove('hidden');
             elements.logoutBtn.classList.add('hidden');
             elements.userInfo.classList.add('hidden');
-            elements.commonPrompts.innerHTML = '<p class="text-gray-500 text-center py-4">Please log in to view prompts.</p>';
         }
+        loadPromptsFromFirestore();
     });
 
     async function updateUserPlanInfo(uid) {
@@ -148,12 +118,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         elements.userPlan.textContent = userData.plan;
         elements.promptsUsed.textContent = userData.promptsUsedToday;
-        loadPromptsFromFirestore();
     }
 
     function isNewDay(lastReset, now) {
         return lastReset.toDateString() !== now.toDateString();
     }
+
+    elements.logoutBtn.addEventListener('click', () => {
+        auth.signOut();
+    });
 
     elements.newPromptBtn.addEventListener('click', modal.openGenerate);
     elements.closeModalBtn.addEventListener('click', modal.closeGenerate);
@@ -191,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.loadingSection.classList.remove('hidden');
         
         try {
-            const response = await fetch('/api/generate-prompt', {
+            const response = await fetch('http://localhost:3000/api/generate-prompt', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: query, promptType: promptType, userId: currentUser.uid })
@@ -238,10 +211,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function loadPromptsFromFirestore() {
-        if (!currentUser) return;
         try {
             const querySnapshot = await db.collection('prompts')
-                .where('userId', '==', currentUser.uid)
                 .orderBy('createdAt', 'desc')
                 .limit(20)
                 .get();
@@ -317,7 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const querySnapshot = await db.collection('prompts')
                 .where('query', '==', query)
-                .where('userId', '==', currentUser.uid)
                 .limit(1)
                 .get();
             

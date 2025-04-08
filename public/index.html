@@ -6,245 +6,77 @@
     <title>PromptCraft - Generate Optimized Prompts Instantly</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <style>
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        .modal-content {
-            transform: translate(-50%, -50%);
-        }
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .floating-btn {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: all 0.2s ease;
-        }
-        .floating-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .animate-spin-slow {
-            animation: spin 1.5s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .results-modal {
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-    <header class="bg-white shadow-sm py-6">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col items-center text-center">
-                <h1 class="text-3xl font-bold text-gray-900">
-                    <span class="text-teal-600">Prompt</span>Craft
-                </h1>
-                <p class="mt-2 text-gray-600">Generate Optimized Prompts Instantly</p>
-            </div>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm py-4">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900">
+                <span class="text-teal-600">Prompt</span>Craft
+            </h1>
+            <nav>
+                <a href="./auth.html" class="text-teal-600 hover:text-teal-700 mr-4">Login</a>
+                <a href="./auth.html" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Sign Up</a>
+            </nav>
         </div>
     </header>
 
-<!-- AI Companies Section -->
-<section class="bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-6 items-center justify-items-center">
-            <div class="flex flex-col items-center">
-                <a href="https://openai.com" target="_blank" rel="noopener noreferrer">
-                    <img src="./images/openai.webp" alt="OpenAI" class="h-12 w-auto mb-2 hover:opacity-80 transition">
-                </a>
-                <a href="https://openai.com" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">ChatGPT</a>
-            </div>
-            <div class="flex flex-col items-center">
-                <a href="https://stability.ai" target="_blank" rel="noopener noreferrer">
-                    <img src="./images/stability-ai-removebg-preview.png" alt="Stability AI" class="h-12 w-auto mb-2 hover:opacity-80 transition">
-                </a>
-                <a href="https://stability.ai" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Stability.ai</a>
-            </div>
-            <div class="flex flex-col items-center">
-                <a href="https://ideogram.ai" target="_blank" rel="noopener noreferrer">
-                    <img src="./images/images-removebg-preview (5).png" alt="Ideogram" class="h-12 w-auto mb-2 hover:opacity-80 transition">
-                </a>
-                <a href="https://ideogram.ai" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Ideogram</a>
-            </div>
-            <div class="flex flex-col items-center">
-                <a href="https://synthesia.io" target="_blank" rel="noopener noreferrer">
-                    <img src="./images/images-removebg-preview (4).png" alt="Synthesia" class="h-12 w-auto mb-2 hover:opacity-80 transition">
-                </a>
-                <a href="https://synthesia.io" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Synthesia</a>
-            </div>
-            <div class="flex flex-col items-center">
-                <a href="https://anthropic.com" target="_blank" rel="noopener noreferrer">
-                    <img src="./images/images-removebg-preview (3).png" alt="Anthropic" class="h-12 w-auto mb-2 hover:opacity-80 transition">
-                </a>
-                <a href="https://anthropic.com" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Claude</a>
-            </div>
-            <div class="flex flex-col items-center">
-                <a href="https://xai.company" target="_blank" rel="noopener noreferrer">
-                    <img src="./images/images-removebg-preview (2).png" alt="xAI" class="h-12 w-auto mb-2 hover:opacity-80 transition">
-                </a>
-                <a href="https://xai.company" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Grok</a>
-            </div>
-        </div>
-    </div>
-</section>
     <main class="flex-grow">
-        <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Common Prompts Section -->
-            <section class="bg-white w-full rounded-lg shadow-sm p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent & Common Prompts</h2>
-                <div class="mb-4">
-                    <input type="text" id="promptSearch" 
-                           placeholder="Search from hundreds of prompts..." 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none transition">
-                </div>
-                <div id="commonPrompts" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <!-- Loading State -->
-                    <div class="col-span-full flex justify-center items-center py-8">
-                        <div class="relative w-16 h-16">
-                            <div class="absolute w-full h-full rounded-full border-2 border-gray-200"></div>
-                            <div class="absolute top-0 left-0 w-full h-full rounded-full border-2 border-teal-500 border-t-transparent animate-spin-slow"></div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <p class="ml-4 text-gray-500 text-sm font-light tracking-wide">LOADING PROMPTS</p>
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Generate Optimized Prompts Instantly</h2>
+            <p class="text-lg text-gray-600 mb-8">Unlock the power of AI with perfectly crafted prompts for any task—creative writing, coding, research, and more.</p>
+            <a href="./home.html" class="bg-teal-600 text-white px-6 py-3 rounded-md hover:bg-teal-700 text-lg">Browse Prompts</a>
+        </section>
+
+        <section class="bg-white py-12">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h3 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Supported AI Platforms</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 items-center justify-items-center">
+                    <div class="flex flex-col items-center">
+                        <a href="https://openai.com" target="_blank" rel="noopener noreferrer">
+                            <img src="./images/openai.webp" alt="OpenAI" class="h-12 w-auto mb-2 hover:opacity-80 transition">
+                        </a>
+                        <a href="https://openai.com" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">ChatGPT</a>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <a href="https://stability.ai" target="_blank" rel="noopener noreferrer">
+                            <img src="./images/stability-ai-removebg-preview.png" alt="Stability AI" class="h-12 w-auto mb-2 hover:opacity-80 transition">
+                        </a>
+                        <a href="https://stability.ai" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Stability.ai</a>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <a href="https://ideogram.ai" target="_blank" rel="noopener noreferrer">
+                            <img src="./images/images-removebg-preview (5).png" alt="Ideogram" class="h-12 w-auto mb-2 hover:opacity-80 transition">
+                        </a>
+                        <a href="https://ideogram.ai" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Ideogram</a>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <a href="https://synthesia.io" target="_blank" rel="noopener noreferrer">
+                            <img src="./images/images-removebg-preview (4).png" alt="Synthesia" class="h-12 w-auto mb-2 hover:opacity-80 transition">
+                        </a>
+                        <a href="https://synthesia.io" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Synthesia</a>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <a href="https://anthropic.com" target="_blank" rel="noopener noreferrer">
+                            <img src="./images/images-removebg-preview (3).png" alt="Anthropic" class="h-12 w-auto mb-2 hover:opacity-80 transition">
+                        </a>
+                        <a href="https://anthropic.com" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Claude</a>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <a href="https://xai.company" target="_blank" rel="noopener noreferrer">
+                            <img src="./images/images-removebg-preview (2).png" alt="xAI" class="h-12 w-auto mb-2 hover:opacity-80 transition">
+                        </a>
+                        <a href="https://xai.company" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-teal-600 transition">Grok</a>
                     </div>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
     </main>
 
-    <!-- Floating New Prompt Button -->
-    <button id="newPromptBtn" class="fixed bottom-6 right-6 bg-teal-600 text-white p-4 rounded-full floating-btn z-10 flex items-center">
-        <span class="mr-2 text-sm font-medium">New Prompt</span>
-        <i class="fas fa-plus"></i>
-    </button>
-
-    <!-- Generate Prompt Modal -->
-    <div id="generatePromptModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-lg shadow-xl p-6 z-30 hidden modal-content">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Generate New Prompt</h3>
-            <button id="closeModalBtn" class="text-gray-400 hover:text-gray-500">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <form id="promptForm" class="space-y-4">
-            <div>
-                <label for="modalQuery" class="block text-sm font-medium text-gray-700 mb-1">What do you need help with?</label>
-                <input type="text" id="modalQuery" name="query" 
-                       placeholder="e.g., Write a story about a dragon" 
-                       class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none transition">
-            </div>
-            
-            <div>
-                <label for="modalPromptType" class="block text-sm font-medium text-gray-700 mb-1">Prompt Type</label>
-                <select id="modalPromptType" name="promptType" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none transition">
-                    <option value="creative">Creative Writing</option>
-                    <option value="coding">Coding</option>
-                    <option value="research">Research</option>
-                    <option value="general">General</option>
-                </select>
-            </div>
-            
-            <div class="pt-2">
-                <button type="submit" 
-                        class="w-full bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition flex items-center justify-center">
-                    <span>Generate</span>
-                    <i class="fas fa-wand-magic-sparkles ml-2"></i>
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Results Modal -->
-    <div id="resultsModal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl bg-white rounded-lg shadow-xl p-6 z-30 hidden results-modal">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-medium text-gray-900">Generated Prompt Result</h2>
-            <button id="closeResultsModalBtn" class="text-gray-400 hover:text-gray-500">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <div class="flex flex-col md:flex-row gap-6">
-            <div class="md:w-1/3">
-                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img id="promptImage" src="" alt="Prompt visualization" class="w-full h-full object-cover">
-                </div>
-            </div>
-            
-            <div class="md:w-2/3 space-y-4">
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900">Generated Prompt</h3>
-                    <div class="mt-2 p-4 bg-gray-50 rounded-lg">
-                        <p id="generatedPrompt" class="text-gray-800 whitespace-pre-wrap"></p>
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 class="text-sm font-medium text-gray-700">Description</h3>
-                    <p id="promptDescription" class="mt-1 text-gray-600"></p>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                    <button id="copyButton" class="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition flex items-center justify-center">
-                        <i class="far fa-copy mr-2"></i>
-                        <span>Copy Prompt</span>
-                    </button>
-                    <button id="shareButton" class="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition flex items-center justify-center">
-                        <i class="far fa-share-from-square mr-2"></i>
-                        <span>Share Prompt</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Overlay -->
-    <div id="modalOverlay" class="fixed inset-0 modal-overlay z-20 hidden"></div>
-
-    <!-- Loading Section -->
-    <div id="loadingSection" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-sm p-8 z-30 hidden">
-        <div class="flex flex-col items-center">
-            <div class="skeleton w-16 h-16 rounded-full mb-4"></div>
-            <p class="text-gray-600">Crafting the perfect prompt...</p>
-        </div>
-    </div>
-
     <footer class="bg-white border-t border-gray-200 py-4">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-center text-sm text-gray-500">© 2025 PromptCraft. All rights reserved.</p>
         </div>
     </footer>
-
-    <div id="notification" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg hidden z-40">
-        <p id="notificationText"></p>
-    </div>
-
-    <!-- External Script -->
-    <script src="./script.js"></script>
 </body>
 </html>
